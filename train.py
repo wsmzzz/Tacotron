@@ -92,7 +92,7 @@ def train(args, log_dir, hparams):
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--base_dir', default='train_log')
-	parser.add_argument('--gpu_id', default='4')
+	parser.add_argument('--gpu_id', default='7')
 	parser.add_argument('--hparams', default='',
 		help='Hyperparameter overrides as a comma-separated list of name=value pairs')
 	parser.add_argument('--tacotron_input', default='Data/training_data/train.txt')

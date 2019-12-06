@@ -23,6 +23,7 @@ class Feeder:
 		self._cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]
 		self._train_offset = 0
 		self._test_offset = 0
+		self.duration_dir='/data5/wangshiming/biaobei/biaobei/label'
 
 		# Load metadata
 		self._mel_dir = os.path.join(os.path.dirname(metadata_filename), 'mels')
@@ -79,12 +80,13 @@ class Feeder:
 			tf.placeholder(tf.float32, shape=(None, None, hparams.num_freq), name='linear_targets'),
 			tf.placeholder(tf.int32, shape=(None, ), name='targets_lengths'),
 			tf.placeholder(tf.int32, shape=(hparams.tacotron_num_gpus, None), name='split_infos'),
+			tf.placeholder(tf.int32,shape=(None,None),name='dur_targets')
 			]
 
 			# Create queue for buffering data
-			queue = tf.FIFOQueue(8, [tf.int32, tf.int32, tf.float32, tf.float32, tf.float32, tf.int32, tf.int32], name='input_queue')
+			queue = tf.FIFOQueue(8, [tf.int32, tf.int32, tf.float32, tf.float32, tf.float32, tf.int32, tf.int32,tf.int32], name='input_queue')
 			self._enqueue_op = queue.enqueue(self._placeholders)
-			self.inputs, self.input_lengths, self.mel_targets, self.token_targets, self.linear_targets, self.targets_lengths, self.split_infos = queue.dequeue()
+			self.inputs, self.input_lengths, self.mel_targets, self.token_targets, self.linear_targets, self.targets_lengths, self.split_infos ,self.dur_targets= queue.dequeue()
 
 			self.inputs.set_shape(self._placeholders[0].shape)
 			self.input_lengths.set_shape(self._placeholders[1].shape)
@@ -93,12 +95,13 @@ class Feeder:
 			self.linear_targets.set_shape(self._placeholders[4].shape)
 			self.targets_lengths.set_shape(self._placeholders[5].shape)
 			self.split_infos.set_shape(self._placeholders[6].shape)
+			self.dur_targets.set_shape(self._placeholders[7].shape)
 
 			# Create eval queue for buffering eval data
-			eval_queue = tf.FIFOQueue(1, [tf.int32, tf.int32, tf.float32, tf.float32, tf.float32, tf.int32, tf.int32], name='eval_queue')
+			eval_queue = tf.FIFOQueue(1, [tf.int32, tf.int32, tf.float32, tf.float32, tf.float32, tf.int32, tf.int32,tf.int32], name='eval_queue')
 			self._eval_enqueue_op = eval_queue.enqueue(self._placeholders)
 			self.eval_inputs, self.eval_input_lengths, self.eval_mel_targets, self.eval_token_targets, \
-				self.eval_linear_targets, self.eval_targets_lengths, self.eval_split_infos = eval_queue.dequeue()
+				self.eval_linear_targets, self.eval_targets_lengths, self.eval_split_infos,self.eval_dur_targets = eval_queue.dequeue()
 
 			self.eval_inputs.set_shape(self._placeholders[0].shape)
 			self.eval_input_lengths.set_shape(self._placeholders[1].shape)
@@ -107,6 +110,7 @@ class Feeder:
 			self.eval_linear_targets.set_shape(self._placeholders[4].shape)
 			self.eval_targets_lengths.set_shape(self._placeholders[5].shape)
 			self.eval_split_infos.set_shape(self._placeholders[6].shape)
+			self.eval_dur_targets.set_shape(self._placeholders[7].shape)
 
 	def start_threads(self, session):
 		self._session = session
@@ -121,7 +125,9 @@ class Feeder:
 	def _get_test_groups(self):
 		meta = self._test_meta[self._test_offset]
 		self._test_offset += 1
-
+		dur_file = meta[1].lstrip('mel-').rstrip('.npy')
+		dur_file = os.path.join(self.duration_dir, '%s.label' % dur_file)
+		dur = get_dur(dur_file)
 		text = meta[5]
 
 		input_data = np.asarray(text_to_sequence(text), dtype=np.int32)
@@ -129,7 +135,7 @@ class Feeder:
 		#Create parallel sequences containing zeros to represent a non finished sequence
 		token_target = np.asarray([0.] * (len(mel_target) - 1))
 		linear_target = np.load(os.path.join(self._linear_dir, meta[2]))
-		return (input_data, mel_target, token_target, linear_target, len(mel_target))
+		return (input_data, mel_target, token_target, linear_target, len(mel_target),dur)
 
 	def make_test_batches(self):
 		start = time.time()
@@ -142,7 +148,7 @@ class Feeder:
 		examples = [self._get_test_groups() for i in range(len(self._test_meta))]
 
 		# Bucket examples based on similar output sequence length for efficiency
-		examples.sort(key=lambda x: x[-1])
+		examples.sort(key=lambda x: x[-2])
 		batches = [examples[i: i+n] for i in range(0, len(examples), n)]
 		np.random.shuffle(batches)
 
@@ -159,7 +165,7 @@ class Feeder:
 			examples = [self._get_next_example() for i in range(n * _batches_per_group)]
 
 			# Bucket examples based on similar output sequence length for efficiency
-			examples.sort(key=lambda x: x[-1])
+			examples.sort(key=lambda x: x[-2])
 			batches = [examples[i: i+n] for i in range(0, len(examples), n)]
 			np.random.shuffle(batches)
 
@@ -185,7 +191,9 @@ class Feeder:
 
 		meta = self._train_meta[self._train_offset]
 		self._train_offset += 1
-
+		dur_file=meta[1].lstrip('mel-').rstrip('.npy')
+		dur_file=os.path.join(self.duration_dir,'%s.label'%dur_file)
+		dur=get_dur(dur_file)
 		text = meta[5]
 
 		input_data = np.asarray(text_to_sequence(text), dtype=np.int32)
@@ -193,7 +201,8 @@ class Feeder:
 		#Create parallel sequences containing zeros to represent a non finished sequence
 		token_target = np.asarray([0.] * (len(mel_target) - 1))
 		linear_target = np.load(os.path.join(self._linear_dir, meta[2]))
-		return (input_data, mel_target, token_target, linear_target, len(mel_target))
+
+		return (input_data, mel_target, token_target, linear_target, len(mel_target),dur)
 
 	def _prepare_batch(self, batches, outputs_per_step):
 		assert 0 == len(batches) % self._hparams.tacotron_num_gpus
@@ -206,15 +215,17 @@ class Feeder:
 		linear_targets = None
 		targets_lengths = None
 		split_infos = []
+		dur_targets=None
 		"""
 		 x[0]:input_data,
 		 x[1]:mel_target, 
 		 x[2]:token_target, 
 		 x[3]:linear_target, 
 		 x[4]:len(mel_target)
+		 x[5]:dur_targets
 		"""
 
-		targets_lengths = np.asarray([x[-1] for x in batches], dtype=np.int32) #Used to mask loss
+		targets_lengths = np.asarray([x[-2] for x in batches], dtype=np.int32) #Used to mask loss
 		input_lengths = np.asarray([len(x[0]) for x in batches], dtype=np.int32)
 
 		#Produce inputs/targets of variables lengths for different GPUs
@@ -228,16 +239,22 @@ class Feeder:
 			#Pad sequences with 1 to infer that the sequence is done
 			token_target_cur_device, token_target_max_len = self._prepare_token_targets([x[2] for x in batch], outputs_per_step)
 			token_targets = np.concatenate((token_targets, token_target_cur_device),axis=1) if token_targets is not None else token_target_cur_device
+			dur_target_cur_device, dur_target_max_len = self._prepare_dur([x[-1] for x in batch])
+
+			dur_targets = np.stack(dur_target_cur_device,axis=1)
 			linear_targets_cur_device, linear_target_max_len = self._prepare_targets([x[3] for x in batch], outputs_per_step)
 			linear_targets = np.concatenate((linear_targets, linear_targets_cur_device), axis=1) if linear_targets is not None else linear_targets_cur_device
-			split_infos.append([input_max_len, mel_target_max_len, token_target_max_len, linear_target_max_len])
+			split_infos.append([input_max_len, mel_target_max_len, token_target_max_len, linear_target_max_len,dur_target_max_len])
 
 		split_infos = np.asarray(split_infos, dtype=np.int32)
-		return (inputs, input_lengths, mel_targets, token_targets, linear_targets, targets_lengths, split_infos)
+		return (inputs, input_lengths, mel_targets, token_targets, linear_targets, targets_lengths, split_infos,dur_targets)
 
 	def _prepare_inputs(self, inputs):
 		max_len = max([len(x) for x in inputs])
 		return np.stack([self._pad_input(x, max_len) for x in inputs]), max_len
+	def _prepare_dur(self,dur):
+		max_len = max([len(x) for x in dur])
+		return np.stack([self._pad_dur(x, max_len) for x in dur]), max_len
 
 	def _prepare_targets(self, targets, alignment):
 		max_len = max([len(t) for t in targets])
@@ -251,6 +268,8 @@ class Feeder:
 
 	def _pad_input(self, x, length):
 		return np.pad(x, [(0, length - x.shape[0]),(0,0)], mode='constant', constant_values=self._pad)
+	def _pad_dur(self,x,length):
+		return np.pad(x, (0, length - x.shape[0]), mode='constant', constant_values=0)
 
 	def _pad_target(self, t, length):
 		return np.pad(t, [(0, length - t.shape[0]), (0, 0)], mode='constant', constant_values=self._target_pad)
@@ -265,3 +284,21 @@ class Feeder:
 	def _round_down(self, x, multiple):
 		remainder = x % multiple
 		return x if remainder == 0 else x - remainder
+
+
+
+def get_dur(file):
+	dur_list=[]
+	with open(file,'r')as reader:
+		lines=reader.readlines()
+		for line in lines :
+			start, end, _ = line.split(' ')
+			start = int(start) / 10e3
+			end = int(end) / 10e3
+			dur_list.append(int(end - start))
+	dur_list=np.asarray(dur_list)
+	return  dur_list
+
+if __name__=='__main__':
+	dur=get_dur('/data5/wangshiming/biaobei/biaobei/label/000001.label')
+	print(dur)

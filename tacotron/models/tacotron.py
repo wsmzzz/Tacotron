@@ -7,6 +7,7 @@ from tensorflow.contrib.seq2seq import dynamic_decode
 from tacotron.models.Architecture_wrappers import TacotronEncoderCell, TacotronDecoderCell
 from tacotron.models.custom_decoder import CustomDecoder
 from tacotron.models.attention import LocationSensitiveAttention
+from tacotron.models.duration import duration
 
 import numpy as np
 
@@ -35,7 +36,7 @@ class Tacotron():
 		self._hparams = hparams
 
 	def initialize(self, inputs, input_lengths, mel_targets=None, stop_token_targets=None, linear_targets=None, targets_lengths=None, gta=False,
-			global_step=None, is_training=False, is_evaluating=False, split_infos=None):
+			global_step=None, is_training=False, is_evaluating=False, split_infos=None,dur_targets=None):
 		"""
 		Initializes the model for inference
 		sets "mel_outputs" and "alignments" fields.
@@ -74,11 +75,12 @@ class Tacotron():
 			p_mel_targets = tf.py_func(split_func, [mel_targets, split_infos[:,1]], lout_float) if mel_targets is not None else mel_targets
 			p_stop_token_targets = tf.py_func(split_func, [stop_token_targets, split_infos[:,2]], lout_float) if stop_token_targets is not None else stop_token_targets
 			p_linear_targets = tf.py_func(split_func, [linear_targets, split_infos[:,3]], lout_float) if linear_targets is not None else linear_targets
-
+			p_dur_targets= tf.py_func(split_func, [dur_targets, split_infos[:,0]], lout_int)
 			tower_inputs = []
 			tower_mel_targets = []
 			tower_stop_token_targets = []
 			tower_linear_targets = []
+			tower_dur_targets=[]
 
 			batch_size = tf.shape(inputs)[0]
 			mel_channels = hp.num_mels
@@ -91,10 +93,13 @@ class Tacotron():
 					tower_stop_token_targets.append(tf.reshape(p_stop_token_targets[i], [batch_size, -1]))
 				if p_linear_targets is not None:
 					tower_linear_targets.append(tf.reshape(p_linear_targets[i], [batch_size, -1, linear_channels]))
+				if p_dur_targets is not None:
+					tower_dur_targets.append(tf.reshape(p_dur_targets[i], [batch_size, -1]))
 
 		T2_output_range = (-hp.max_abs_value, hp.max_abs_value) if hp.symmetric_mels else (0, hp.max_abs_value)
 
 		self.tower_decoder_output = []
+		self.tower_dur=[]
 		self.tower_alignments = []
 		self.tower_stop_token_prediction = []
 		self.tower_mel_outputs = []
@@ -105,7 +110,7 @@ class Tacotron():
 		tower_encoder_outputs = []
 		tower_residual = []
 		tower_projected_residual = []
-		
+
 		# 1. Declare GPU Devices
 		gpus = ["/gpu:{}".format(i) for i in range(hp.tacotron_num_gpus)]
 		for i in range(hp.tacotron_num_gpus):
@@ -140,6 +145,8 @@ class Tacotron():
 							zoneout=hp.tacotron_zoneout_rate, scope='encoder_LSTM'))
 
 					encoder_outputs = encoder_cell(embedded_inputs, tower_input_lengths[i])
+					# Dur=duration(hparams=hp,training=is_training)
+					# dur_out=Dur(encoder_outputs)
 
 					#For shape visualization purpose
 					enc_conv_output_shape = encoder_cell.conv_output_shape
@@ -238,7 +245,7 @@ class Tacotron():
 
 					#Grab alignments from the final decoder state
 					alignments = tf.transpose(final_decoder_state.alignment_history.stack(), [1, 2, 0])
-
+					# self.tower_dur.append(dur_out)
 					self.tower_decoder_output.append(decoder_output)
 					self.tower_alignments.append(alignments)
 					self.tower_stop_token_prediction.append(stop_token_prediction)

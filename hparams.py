@@ -245,6 +245,13 @@ hparams = tf.contrib.training.HParams(
 				'speaker2', 'speaker3', 'speaker4'], #Must be consistent with speaker ids specified for global conditioning for correct visualization.
 	###########################################################################################################################################
 
+
+
+    #######################################################
+	dur_conv_layer_num=3,
+	dur_project_dim=48,
+	dur_conv_kernel_size=5,
+	dur_conv_channel=512,
 	#Tacotron Training
 	#Reproduction seeds
 	tacotron_random_seed = 5339, #Determines initial graph and operations (i.e: model) random state for reproducibility
