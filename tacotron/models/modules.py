@@ -483,3 +483,7 @@ def MaskedLinearLoss(targets, outputs, targets_lengths, hparams, mask=None):
 	mean_l1_low = tf.reduce_sum(masked_l1_low) / tf.reduce_sum(mask_)
 
 	return 0.5 * mean_l1 + 0.5 * mean_l1_low
+
+
+
+

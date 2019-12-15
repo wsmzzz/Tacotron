@@ -3,6 +3,13 @@
   <component name="RemoteMappingsManager">
     <list>
       <list>
+        <remote-mappings server-id="python@sftp://smwang@172.16.46.66:22//home/smwang/anaconda3/envs/tf1/bin/python3.7">
+          <settings>
+            <list>
+              <mapping local-root="$PROJECT_DIR$" remote-root="/home/smwang/disk/Taco_test" />
+            </list>
+          </settings>
+        </remote-mappings>
         <remote-mappings server-id="python@sftp://wangshiming@172.18.28.224:22/data5/wangshiming/anaconda3/envs/pytorch/bin/python3.7">
           <settings>
             <list>

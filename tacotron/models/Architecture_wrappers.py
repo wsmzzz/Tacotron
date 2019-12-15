@@ -84,7 +84,7 @@ class TacotronDecoderCell(RNNCell):
 	tensorflow's attention wrapper call if it was using cumulative alignments instead of previous alignments only.
 	"""
 
-	def __init__(self, prenet, attention_mechanism, rnn_cell, frame_projection, stop_projection):
+	def __init__(self, prenet, attention_mechanism, rnn_cell, frame_projection, stop_projection,dur=None):
 		"""Initialize decoder parameters
 
 		Args:
@@ -104,9 +104,8 @@ class TacotronDecoderCell(RNNCell):
 		self._cell = rnn_cell
 		self._frame_projection = frame_projection
 		self._stop_projection = stop_projection
-
+		self._dur=dur
 		self._attention_layer_size = self._attention_mechanism.values.get_shape()[-1].value
-
 	def _batch_size_checks(self, batch_size, error_message):
 		return [check_ops.assert_equal(batch_size,
 		  self._attention_mechanism.batch_size,
@@ -189,14 +188,17 @@ class TacotronDecoderCell(RNNCell):
 			LSTM_output,
 			previous_alignments,
 			attention_layer=None,
-			prev_max_attentions=state.max_attentions)
-
+			prev_max_attentions=state.max_attentions,
+		    dur=tf.slice(self._dur,[0,state.time,0],[-1, 1, -1])
+			)
+		#
 		#Concat LSTM outputs and context vector to form projections inputs
 		projections_input = tf.concat([LSTM_output, context_vector], axis=-1)
 
 		#Compute predicted frames and predicted <stop_token>
 		cell_outputs = self._frame_projection(projections_input)
 		stop_tokens = self._stop_projection(projections_input)
+
 
 		#Save alignment history
 		alignment_history = previous_alignment_history.write(state.time, alignments)
@@ -209,5 +211,6 @@ class TacotronDecoderCell(RNNCell):
 			alignments=cumulated_alignments,
 			alignment_history=alignment_history,
 			max_attentions=max_attentions)
+
 
 		return (cell_outputs, stop_tokens), next_state

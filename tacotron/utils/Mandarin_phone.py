@@ -1,7 +1,7 @@
 import os
 
 phone_dict={}
-with open(os.path.join(os.path.expandvars('$HOME'),'my_tacotron2/tacotron/utils/Mandarin_phone.txt')) as reader:
+with open('/data5/wangshiming/my_tacotron2/tacotron/utils/Mandarin_phone.txt','r') as reader:
     lines=reader.readlines()
     for index,i in enumerate(lines):
         phone_dict[i.strip()]=index

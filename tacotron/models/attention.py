@@ -6,13 +6,13 @@ from tensorflow.python.layers import core as layers_core
 from tensorflow.python.ops import array_ops, math_ops, nn_ops, variable_scope
 
 
-#From https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/seq2seq/python/ops/attention_wrapper.py
+# From https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/seq2seq/python/ops/attention_wrapper.py
 def _compute_attention(attention_mechanism, cell_output, attention_state,
-					   attention_layer, prev_max_attentions):
+					   attention_layer, prev_max_attentions, dur=None):
 	"""Computes the attention and alignments for a given attention_mechanism."""
 	alignments, next_attention_state, max_attentions = attention_mechanism(
 		cell_output, state=attention_state, prev_max_attentions=prev_max_attentions)
-
+	a = 0.1
 	# Reshape from [batch_size, memory_time] to [batch_size, 1, memory_time]
 	expanded_alignments = array_ops.expand_dims(alignments, 1)
 	# Context is the inner product of alignments and values along the
@@ -24,7 +24,10 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 	# the batched matmul is over memory_time, so the output shape is
 	#   [batch_size, 1, memory_size].
 	# we then squeeze out the singleton dim.
+	if dur != None:
+		expanded_alignments = a * expanded_alignments + (1 - a) * dur
 	context = math_ops.matmul(expanded_alignments, attention_mechanism.values)
+
 	context = array_ops.squeeze(context, [1])
 
 	if attention_layer is not None:
@@ -32,6 +35,14 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 	else:
 		attention = context
 
+	if dur is not None:
+		amend_alignment = tf.squeeze(expanded_alignments)
+		dur_alignment = tf.squeeze(dur)
+		alignments=tf.stack([alignments,dur_alignment,amend_alignment])
+	else:
+
+		print(alignments.shape)
+		alignments = tf.stack([alignments])
 	return attention, alignments, next_attention_state, max_attentions
 
 
@@ -68,6 +79,7 @@ def _location_sensitive_score(W_query, W_fil, W_keys):
 		initializer=tf.zeros_initializer())
 
 	return tf.reduce_sum(v_a * tf.tanh(W_keys + W_query + W_fil + b_a), [2])
+
 
 def _smoothing_normalization(e):
 	"""Applies a smoothing normalization function instead of softmax
@@ -145,22 +157,24 @@ class LocationSensitiveAttention(BahdanauAttention):
 					multiple subsequent sound frames.
 			name: Name to use when creating ops.
 		"""
-		#Create normalization function
-		#Setting it to None defaults in using softmax
+		# Create normalization function
+		# Setting it to None defaults in using softmax
 		normalization_function = _smoothing_normalization if (smoothing == True) else None
-		memory_length = memory_sequence_length if (mask_encoder==True) else None
+		memory_length = memory_sequence_length if (mask_encoder == True) else None
 		super(LocationSensitiveAttention, self).__init__(
-				num_units=num_units,
-				memory=memory,
-				memory_sequence_length=memory_length,
-				probability_fn=normalization_function,
-				name=name)
+			num_units=num_units,
+			memory=memory,
+			memory_sequence_length=memory_length,
+			probability_fn=normalization_function,
+			name=name)
 
 		self.location_convolution = tf.layers.Conv1D(filters=hparams.attention_filters,
-			kernel_size=hparams.attention_kernel, padding='same', use_bias=True,
-			bias_initializer=tf.zeros_initializer(), name='location_features_convolution')
+													 kernel_size=hparams.attention_kernel, padding='same',
+													 use_bias=True,
+													 bias_initializer=tf.zeros_initializer(),
+													 name='location_features_convolution')
 		self.location_layer = tf.layers.Dense(units=num_units, use_bias=False,
-			dtype=tf.float32, name='location_features_layer')
+											  dtype=tf.float32, name='location_features_layer')
 		self._cumulate = cumulate_weights
 		self.synthesis_constraint = hparams.synthesis_constraint and not is_training
 		self.attention_win_size = tf.convert_to_tensor(hparams.attention_win_size, dtype=tf.int32)
@@ -206,16 +220,17 @@ class LocationSensitiveAttention(BahdanauAttention):
 				reverse_masks = tf.sequence_mask(Tx - self.attention_win_size - prev_max_attentions, Tx)[:, ::-1]
 			else:
 				assert self.constraint_type == 'window'
-				key_masks = tf.sequence_mask(prev_max_attentions - (self.attention_win_size // 2 + (self.attention_win_size % 2 != 0)), Tx)
+				key_masks = tf.sequence_mask(
+					prev_max_attentions - (self.attention_win_size // 2 + (self.attention_win_size % 2 != 0)), Tx)
 				reverse_masks = tf.sequence_mask(Tx - (self.attention_win_size // 2) - prev_max_attentions, Tx)[:, ::-1]
-			
+
 			masks = tf.logical_or(key_masks, reverse_masks)
 			paddings = tf.ones_like(energy) * (-2 ** 32 + 1)  # (N, Ty/r, Tx)
 			energy = tf.where(tf.equal(masks, False), energy, paddings)
 
 		# alignments shape = energy shape = [batch_size, max_time]
 		alignments = self._probability_fn(energy, previous_alignments)
-		max_attentions = tf.argmax(alignments, -1, output_type=tf.int32) # (N, Ty/r)
+		max_attentions = tf.argmax(alignments, -1, output_type=tf.int32)  # (N, Ty/r)
 
 		# Cumulate alignments
 		if self._cumulate:

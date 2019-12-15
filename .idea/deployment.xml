@@ -12,7 +12,7 @@
       <paths name="smwang@172.16.46.66:22">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/smwang/disk/Taco_test" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

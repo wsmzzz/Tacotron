@@ -2,12 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0ff56f95-1e84-4354-8e94-25a028f70889" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/remote-mappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/remote-mappings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hparams.py" beforeDir="false" afterPath="$PROJECT_DIR$/hparams.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tacotron/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tacotron/feeder.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/feeder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/models/Architecture_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/Architecture_wrappers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/models/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/models/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/modules.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tacotron/models/tacotron.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/tacotron.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/synthesizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/synthesizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tacotron/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/utils/Mandarin_phone.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/utils/Mandarin_phone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/utils/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,6 +22,20 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -33,8 +54,13 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/test.py" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -56,8 +82,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.train">
-    <configuration name="duration" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.feeder">
+    <configuration name="caculate_mse" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Tacotron-2-master" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -65,12 +91,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tacotron/models" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tacotron/models/duration.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/caculate_mse.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -101,7 +127,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="preprocess" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="my_synthesis" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Tacotron-2-master" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -114,7 +140,29 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/preprocess.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/my_synthesis.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="plot" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Tacotron-2-master" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tacotron/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tacotron/utils/plot.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -145,12 +193,20 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.my_synthesis" />
+      <item itemvalue="Python.plot" />
+      <item itemvalue="Python.train" />
+      <item itemvalue="Python.caculate_mse" />
+      <item itemvalue="Python.feeder" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.train" />
         <item itemvalue="Python.feeder" />
-        <item itemvalue="Python.duration" />
-        <item itemvalue="Python.preprocess" />
+        <item itemvalue="Python.train" />
+        <item itemvalue="Python.plot" />
+        <item itemvalue="Python.caculate_mse" />
+        <item itemvalue="Python.my_synthesis" />
       </list>
     </recent_temporary>
   </component>
@@ -172,8 +228,33 @@
       <workItem from="1575548870688" duration="10000" />
       <workItem from="1575549199774" duration="1746000" />
       <workItem from="1575627064331" duration="491000" />
-      <workItem from="1575633556105" duration="14057000" />
+      <workItem from="1575633556105" duration="14413000" />
+      <workItem from="1575784414000" duration="5040000" />
+      <workItem from="1575791075496" duration="13944000" />
+      <workItem from="1575869282652" duration="9254000" />
+      <workItem from="1575895132966" duration="4373000" />
+      <workItem from="1575957567113" duration="10868000" />
+      <workItem from="1576051865471" duration="8071000" />
+      <workItem from="1576062523544" duration="410000" />
+      <workItem from="1576067543427" duration="351000" />
+      <workItem from="1576072231268" duration="3028000" />
+      <workItem from="1576417767297" duration="3234000" />
     </task>
+    <task id="LOCAL-00001" summary="add duration_modules">
+      <created>1575649533270</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1575649533271</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add duration_modules">
+      <created>1575649665009</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1575649665009</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -184,11 +265,17 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add duration_modules" />
+    <option name="LAST_COMMIT_MESSAGE" value="add duration_modules" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -209,27 +296,46 @@
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tacotron/models/attention.py</url>
-          <line>10</line>
-          <option name="timeStamp" value="4" />
+          <url>file://$PROJECT_DIR$/test.py</url>
+          <line>5</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/synthesizer.py</url>
+          <line>357</line>
+          <option name="timeStamp" value="46" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/synthesizer.py</url>
+          <line>319</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/utils/plot.py</url>
+          <line>103</line>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/train.py</url>
+          <line>388</line>
+          <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tacotron/feeder.py</url>
-          <line>303</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tacotron/models/tacotron.py</url>
-          <line>77</line>
-          <option name="timeStamp" value="13" />
+          <line>385</line>
+          <option name="timeStamp" value="59" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$train.coverage" NAME="train Coverage Results" MODIFIED="1575649413742" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$caculate_mse.coverage" NAME="caculate_mse Coverage Results" MODIFIED="1576061783051" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$plot.coverage" NAME="plot Coverage Results" MODIFIED="1576062190844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron/utils" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$train.coverage" NAME="train Coverage Results" MODIFIED="1576074477287" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$my_synthesis.coverage" NAME="my_synthesis Coverage Results" MODIFIED="1576055828728" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$duration.coverage" NAME="duration Coverage Results" MODIFIED="1575644236597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron/models" />
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$feeder.coverage" NAME="feeder Coverage Results" MODIFIED="1575647634470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$feeder.coverage" NAME="feeder Coverage Results" MODIFIED="1576420948454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1575032050377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$synthesizer.coverage" NAME="test Coverage Results" MODIFIED="1576052943504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -94,7 +94,7 @@ hparams = tf.contrib.training.HParams(
 
 
 	#M-AILABS (and other datasets) trim params (there parameters are usually correct for any data, but definitely must be tuned for specific speakers)
-	trim_silence = True, #Whether to clip silence in Audio (at beginning and end of audio only, not the middle)
+	trim_silence = False, #Whether to clip silence in Audio (at beginning and end of audio only, not the middle)
 	trim_fft_size = 2048, #Trimming window size
 	trim_hop_size = 512, #Trimmin hop length
 	trim_top_db = 40, #Trimming db difference from reference db (smaller==harder trim.)

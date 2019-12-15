@@ -34,7 +34,7 @@ def add_embedding_stats(summary_writer, embedding_names, paths_to_meta, checkpoi
 		#Specifiy the embedding variable and the metadata
 		embedding.tensor_name = embedding_name
 		embedding.metadata_path = path_to_meta
-	
+
 	#Project the embeddings to space dimensions for visualization
 	tf.contrib.tensorboard.plugins.projector.visualize_embeddings(summary_writer, config)
 
@@ -51,7 +51,7 @@ def add_train_stats(model, hparams):
 			for i in range(hparams.tacotron_num_gpus):
 				tf.summary.histogram('linear_outputs %d' % i, model.tower_linear_outputs[i])
 				tf.summary.histogram('linear_targets %d' % i, model.tower_linear_targets[i])
-		
+
 		tf.summary.scalar('regularization_loss', model.regularization_loss)
 		tf.summary.scalar('stop_token_loss', model.stop_token_loss)
 		tf.summary.scalar('loss', model.loss)
@@ -84,11 +84,13 @@ def model_train_mode(args, feeder, hparams, global_step):
 		if hparams.predict_linear:
 			model.initialize(feeder.inputs, feeder.input_lengths, feeder.mel_targets, feeder.token_targets, linear_targets=feeder.linear_targets,
 				targets_lengths=feeder.targets_lengths, global_step=global_step,
-				is_training=True, split_infos=feeder.split_infos,dur_targets=feeder.dur_targets)
+				is_training=True, split_infos=feeder.split_infos,dur_targets=feeder.dur_targets,
+							 alignment_targets=feeder.alignment_target)
 		else:
 			model.initialize(feeder.inputs, feeder.input_lengths, feeder.mel_targets, feeder.token_targets,
 				targets_lengths=feeder.targets_lengths, global_step=global_step,
-				is_training=True, split_infos=feeder.split_infos,dur_targets=feeder.dur_targets)
+				is_training=True, split_infos=feeder.split_infos,dur_targets=feeder.dur_targets,
+							 alignment_targets=feeder.alignment_target)
 		model.add_loss()
 		model.add_optimizer(global_step)
 		stats = add_train_stats(model, hparams)
@@ -103,11 +105,13 @@ def model_test_mode(args, feeder, hparams, global_step):
 		if hparams.predict_linear:
 			model.initialize(feeder.eval_inputs, feeder.eval_input_lengths, feeder.eval_mel_targets, feeder.eval_token_targets,
 				linear_targets=feeder.eval_linear_targets, targets_lengths=feeder.eval_targets_lengths, global_step=global_step,
-				is_training=False, is_evaluating=True, split_infos=feeder.eval_split_infos,dur_targets=feeder.eval_dur_targets)
+				is_training=False, is_evaluating=True, split_infos=feeder.eval_split_infos,dur_targets=feeder.eval_dur_targets,
+							 alignment_targets=feeder.eval_alignment_target)
 		else:
 			model.initialize(feeder.eval_inputs, feeder.eval_input_lengths, feeder.eval_mel_targets, feeder.eval_token_targets,
-				targets_lengths=feeder.eval_targets_lengths, global_step=global_step, is_training=False, is_evaluating=True, 
-				split_infos=feeder.eval_split_infos,dur_targets=feeder.eval_dur_targets)
+				targets_lengths=feeder.eval_targets_lengths, global_step=global_step, is_training=False, is_evaluating=True,
+				split_infos=feeder.eval_split_infos,dur_targets=feeder.eval_dur_targets,
+							 alignment_targets=feeder.eval_alignment_target)
 		model.add_loss()
 		return model
 
@@ -297,9 +301,21 @@ def train(log_dir, args, hparams):
 						wav = audio.inv_mel_spectrogram(mel_p.T, hparams)
 					audio.save_wav(wav, os.path.join(eval_wav_dir, 'step-{}-eval-wave-from-mel.wav'.format(step)), sr=hparams.sample_rate)
 
-					plot.plot_alignment(align, os.path.join(eval_plot_dir, 'step-{}-eval-align.png'.format(step)),
+					plot.plot_alignment(np.squeeze(align[0,:,:]), os.path.join(eval_plot_dir, 'step-{}-eval-align.png'.format(step)),
+
+
 						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, eval_loss),
 						max_len=t_len // hparams.outputs_per_step)
+					plot.plot_alignment(np.squeeze(align[1,:,:]), os.path.join(eval_plot_dir, 'step-{}-eval-align_dur.png'.format(step)),
+
+										title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step,
+																					eval_loss),
+										max_len=t_len // hparams.outputs_per_step)
+					plot.plot_alignment(np.squeeze(align[2,:,:]), os.path.join(eval_plot_dir, 'step-{}-eval-align_amend.png'.format(step)),
+
+										title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step,
+																					eval_loss),
+										max_len=t_len // hparams.outputs_per_step)
 					plot.plot_spectrogram(mel_p, os.path.join(eval_plot_dir, 'step-{}-eval-mel-spectrogram.png'.format(step)),
 						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, eval_loss), target_spectrogram=mel_t,
 						max_len=t_len)
@@ -314,9 +330,9 @@ def train(log_dir, args, hparams):
 					add_eval_stats(summary_writer, step, linear_loss, before_loss, after_loss, stop_token_loss, eval_loss)
 
 
-				if step % args.checkpoint_interval == 0 or step == args.tacotron_train_steps or step == 300:
+				if step % args.checkpoint_interval == 0 or step == args.tacotron_train_steps or step == 300 or step == 1:
 					#Save model and current global step
-					saver.save(sess, checkpoint_path, global_step=global_step)
+
 
 					log('\nSaving alignment, Mel-Spectrograms and griffin-lim inverted waveform..')
 					if hparams.predict_linear:
@@ -369,15 +385,23 @@ def train(log_dir, args, hparams):
 					audio.save_wav(wav, os.path.join(wav_dir, 'step-{}-wave-from-mel.wav'.format(step)), sr=hparams.sample_rate)
 
 					#save alignment plot to disk (control purposes)
-					plot.plot_alignment(alignment, os.path.join(plot_dir, 'step-{}-align.png'.format(step)),
+
+					plot.plot_alignment(np.squeeze(alignment[0, :, :]), os.path.join(plot_dir, 'step-{}-align.png'.format(step)),
 						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, loss),
 						max_len=target_length // hparams.outputs_per_step)
+					plot.plot_alignment(np.squeeze(alignment[1, :, :]), os.path.join(plot_dir, 'step-{}-align_dur.png'.format(step)),
+						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, loss),
+						max_len=target_length // hparams.outputs_per_step)
+					plot.plot_alignment(np.squeeze(alignment[2, :, :]), os.path.join(plot_dir, 'step-{}-align_amend.png'.format(step)),
+						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, loss),
+						max_len=target_length // hparams.outputs_per_step)
+
 					#save real and predicted mel-spectrogram plot to disk (control purposes)
 					plot.plot_spectrogram(mel_prediction, os.path.join(plot_dir, 'step-{}-mel-spectrogram.png'.format(step)),
 						title='{}, {}, step={}, loss={:.5f}'.format(args.model, time_string(), step, loss), target_spectrogram=target,
 						max_len=target_length)
 					# log('Input at step {}: {}'.format(step, sequence_to_text(input_seq)))
-
+					saver.save(sess, checkpoint_path, global_step=global_step)
 				if step % args.embedding_interval == 0 or step == args.tacotron_train_steps or step == 1:
 					#Get current checkpoint state
 					checkpoint_state = tf.train.get_checkpoint_state(save_dir)
