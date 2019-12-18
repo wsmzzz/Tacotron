@@ -30,7 +30,7 @@ if __name__=='__main__':
         name= [line.strip().split("|")[0].rstrip('.npy').lstrip('audio-') for line in lines]
         texts=[line.strip().split("|")[5] for line in lines]
     syther=Synthesizer()
-    syther.load(checkpoint_path=args.checkpoint,hparams=hparams)
+    syther.load(checkpoint_path=args.checkpoint,hparams=hparams,a=args.a)
     name=np.reshape(np.asarray(name),[-1 ,args.batch_size])
    
     for i in tqdm.tqdm(range(name.shape[0])):

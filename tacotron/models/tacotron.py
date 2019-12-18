@@ -44,7 +44,7 @@ class Tacotron():
 	def initialize(self, inputs, input_lengths, mel_targets=None, stop_token_targets=None, linear_targets=None,
 				   targets_lengths=None, gta=False,
 				   global_step=None, is_training=False, is_evaluating=False, split_infos=None, dur_targets=None,
-				   alignment_targets=None):
+				   alignment_targets=None,a=None):
 		"""
 		Initializes the model for inference
 		sets "mel_outputs" and "alignments" fields.
@@ -207,14 +207,17 @@ class Tacotron():
 
 					# Decoder Cell ==> [batch_size, decoder_steps, num_mels * r] (after decoding)
 					if is_training:
+						align_dur=tf.transpose(tower_alignment_targets[i],perm=[1,0,2])
+						align_dur = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True).unstack(align_dur)
 						decoder_cell = TacotronDecoderCell(
 								prenet,
 								attention_mechanism,
 								decoder_lstm,
 								frame_projection,
 								stop_projection,
-								dur=tower_alignment_targets[i],
-								is_training=is_training)
+								dur=align_dur,
+								is_training=is_training,
+								a=a)
 					else:
 						dur_int = tf.argmax(dur_out,axis=-1)
 						align_dur = tf.py_func(tf_convert_dur2alignment, [dur_int], Tout=tf.int32)
@@ -238,7 +241,8 @@ class Tacotron():
 							frame_projection,
 							stop_projection,
 							dur=align_dur,
-						is_training=is_training)
+							is_training=is_training,
+							a=a)
 
 
 					# Define the helper for our decoder
