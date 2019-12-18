@@ -9,6 +9,7 @@ from tacotron.models.Architecture_wrappers import TacotronEncoderCell, TacotronD
 from tacotron.models.custom_decoder import CustomDecoder
 from tacotron.models.attention import LocationSensitiveAttention
 from tacotron.models.duration import duration
+from tacotron.feeder import  tf_convert_dur2alignment
 
 import numpy as np
 
@@ -78,10 +79,10 @@ class Tacotron():
 
 		dur_targets = tf.cast(
 			tf.one_hot(indices=dur_targets, depth=self._hparams.dur_project_dim, on_value=1, off_value=0, axis=-1),
-			dtype=tf.float32)
+			dtype=tf.float32) if dur_targets is not None else dur_targets
 		alignment_targets = tf.cast(
 			tf.one_hot(indices=alignment_targets, depth=max_out_length, on_value=1, off_value=0, axis=-1),
-			dtype=tf.float32)
+			dtype=tf.float32) if alignment_targets is not None else alignment_targets
 
 
 		with tf.device(split_device):
@@ -176,6 +177,8 @@ class Tacotron():
 					Dur = duration(hparams=hp, training=is_training)
 					dur_out = Dur(encoder_outputs)
 
+
+
 					# For shape visualization purpose
 					enc_conv_output_shape = encoder_cell.conv_output_shape
 
@@ -203,14 +206,39 @@ class Tacotron():
 													 scope='stop_token_projection')
 
 					# Decoder Cell ==> [batch_size, decoder_steps, num_mels * r] (after decoding)
+					if is_training:
+						decoder_cell = TacotronDecoderCell(
+								prenet,
+								attention_mechanism,
+								decoder_lstm,
+								frame_projection,
+								stop_projection,
+								dur=tower_alignment_targets[i],
+								is_training=is_training)
+					else:
+						dur_int = tf.argmax(dur_out,axis=-1)
+						align_dur = tf.py_func(tf_convert_dur2alignment, [dur_int], Tout=tf.int32)
+						align_dur=tf.one_hot(indices=align_dur,
+											 depth=max_out_length,
+											 on_value=1.0, off_value=0.0, axis=-1
+											 ,dtype=tf.float32)
+						pad = align_dur[:, -1, :]
+						pad = tf.expand_dims(pad, axis=1)
+						pad = tf.tile(pad, [1, 700, 1])
+						align_dur = tf.concat([align_dur, pad], axis=1)
 
-					decoder_cell = TacotronDecoderCell(
+						# convert tensor To TensorArray
+						align_dur=tf.transpose(align_dur,perm=[1,0,2])
+						align_dur = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True).unstack(align_dur)
+
+						decoder_cell = TacotronDecoderCell(
 							prenet,
 							attention_mechanism,
 							decoder_lstm,
 							frame_projection,
 							stop_projection,
-							dur=tower_alignment_targets[i])
+							dur=align_dur,
+						is_training=is_training)
 
 
 					# Define the helper for our decoder

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="wangshiming@172.18.28.224:22">
+  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="wangshiming@172.18.28.224:22" autoUploadExternalChanges="true">
     <serverData>
       <paths name="smwang@172.16.46.102:22">
         <serverdata>

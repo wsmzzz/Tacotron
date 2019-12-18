@@ -12,16 +12,18 @@ import  numpy as np
 
 if __name__=='__main__':
     
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
     argparser=argparse.ArgumentParser()
     argparser.add_argument('--base_dir',default='Data')
     argparser.add_argument('--input',default='training_data/test.txt')
     argparser.add_argument('--batch_size',default=2)
-    argparser.add_argument('--out_dir', default='Synthesizer_train')
-    argparser.add_argument('--checkpoint',default='/data5/wangshiming/my_tacotron2/train_log_dur/logs-Tacotron/taco_pretrained/tacotron_model.ckpt-13000')
+    argparser.add_argument('--out_dir', default='Synthesizer')
+    argparser.add_argument('--a',default='1')
+    argparser.add_argument('--checkpoint',default='/data5/wangshiming/my_tacotron2/train_log_dur/logs_a=1-Tacotron/taco_pretrained/tacotron_model.ckpt-32000')
     args=argparser.parse_args()
-    if not os.path.exists(args.out_dir):
-        os.mkdir(args.out_dir)
+    out_dir=os.path.join(args.out_dir,args.a)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir,exist_ok=True)
 
     with open(os.path.join(args.base_dir,args.input),mode='r') as reader:
         lines=reader.readlines()
@@ -31,10 +33,10 @@ if __name__=='__main__':
     syther.load(checkpoint_path=args.checkpoint,hparams=hparams)
     name=np.reshape(np.asarray(name),[-1 ,args.batch_size])
    
-    for i in range(name.shape[0]):
+    for i in tqdm.tqdm(range(name.shape[0])):
         # syther.my_synthesize(texts[i*args.batch_size:(i+1)*args.batch_size],basenames=name[i,:],out_dir=args.out_dir)
-        syther.get_dur(texts[i * args.batch_size:(i + 1) * args.batch_size], basenames=name[i, :],
-                             out_dir=args.out_dir)
+        syther.my_synthesize(texts[i * args.batch_size:(i + 1) * args.batch_size], basenames=name[i, :],
+                             out_dir=out_dir)
     
 
 

@@ -12,7 +12,7 @@ class duration:
         self.conv_kernel_size = hparams.dur_conv_kernel_size
         self.conv_channel = hparams.dur_conv_channel
         self.activation='relu'
-        self.dropout_rate=0.2
+        self.dropout_rate=0.5
 
     def __call__(self,encoder_outputs):
         with tf.variable_scope('duration') as name_scope:

@@ -84,7 +84,7 @@ class TacotronDecoderCell(RNNCell):
 	tensorflow's attention wrapper call if it was using cumulative alignments instead of previous alignments only.
 	"""
 
-	def __init__(self, prenet, attention_mechanism, rnn_cell, frame_projection, stop_projection,dur=None):
+	def __init__(self, prenet, attention_mechanism, rnn_cell, frame_projection, stop_projection,dur=None,is_training=True):
 		"""Initialize decoder parameters
 
 		Args:
@@ -98,6 +98,7 @@ class TacotronDecoderCell(RNNCell):
 			mask_finished: Boolean, Whether to mask decoder frames after the <stop_token>
 		"""
 		super(TacotronDecoderCell, self).__init__()
+		self.is_training=is_training
 		#Initialize decoder layers
 		self._prenet = prenet
 		self._attention_mechanism = attention_mechanism
@@ -105,6 +106,7 @@ class TacotronDecoderCell(RNNCell):
 		self._frame_projection = frame_projection
 		self._stop_projection = stop_projection
 		self._dur=dur
+
 		self._attention_layer_size = self._attention_mechanism.values.get_shape()[-1].value
 	def _batch_size_checks(self, batch_size, error_message):
 		return [check_ops.assert_equal(batch_size,
@@ -184,13 +186,14 @@ class TacotronDecoderCell(RNNCell):
 		#https://arxiv.org/pdf/1508.04025.pdf
 		previous_alignments = state.alignments
 		previous_alignment_history = state.alignment_history
+		dur=self._dur.read(state.time)
 		context_vector, alignments, cumulated_alignments, max_attentions = _compute_attention(self._attention_mechanism,
 			LSTM_output,
 			previous_alignments,
 			attention_layer=None,
 			prev_max_attentions=state.max_attentions,
-		    dur=tf.slice(self._dur,[0,state.time,0],[-1, 1, -1])
-			)
+		    dur=dur,
+			is_training=self.is_training)
 		#
 		#Concat LSTM outputs and context vector to form projections inputs
 		projections_input = tf.concat([LSTM_output, context_vector], axis=-1)

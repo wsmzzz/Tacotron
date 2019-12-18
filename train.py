@@ -35,7 +35,7 @@ def prepare_run(args):
 	modified_hp = hparams.parse(args.hparams)
 	os.environ['TF_CPP_MIN_LOG_LEVEL'] = str(args.tf_log_level)
 	run_name = args.name or args.model
-	log_dir = os.path.join(args.base_dir, 'logs_a=0.9-{}'.format(run_name))
+	log_dir = os.path.join(args.base_dir, 'logs_a=%s-%s'%(args.a,run_name))
 	os.makedirs(log_dir, exist_ok=True)
 	infolog.init(os.path.join(log_dir, 'Terminal_train_log'), run_name, args.slack_url)
 	return log_dir, modified_hp
@@ -92,7 +92,8 @@ def train(args, log_dir, hparams):
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--base_dir', default='train_log_dur')
-	parser.add_argument('--gpu_id', default='2')
+	parser.add_argument('--a',default=0.1)
+	parser.add_argument('--gpu_id', default='4')
 	parser.add_argument('--hparams', default='',
 		help='Hyperparameter overrides as a comma-separated list of name=value pairs')
 	parser.add_argument('--tacotron_input', default='Data/training_data/train.txt')

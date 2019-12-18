@@ -1,12 +1,10 @@
-import numpy as np
-def numpy_softmax(input,axis=-1):
-    exp=np.exp(input)
-    sum=np.repeat(np.sum(exp,axis=axis,keepdims=True),repeats=48,axis=1)
-    result=np.divide(exp,sum)
-    return result
-
-
-
-if __name__=='__main__':
-    r=np.random.randn(32,48)
-    numpy_softmax(r)
+import tensorflow as tf
+import os
+os.environ['CUDA_VISIBLE_DEVICES']='3'
+if __name__ == '__main__':
+    align=tf.random.uniform((32,128,16),dtype=tf.float32)
+    align=tf.transpose(align,perm=[1,0,2])
+    new_T=tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True).unstack(align)
+    one_time=new_T.read(1)
+    sess=tf.Session()
+    print(sess.run(one_time).shape)
