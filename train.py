@@ -91,7 +91,7 @@ def train(args, log_dir, hparams):
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--base_dir', default='train_log_dur')
+	parser.add_argument('--base_dir', default='train_log_mask_dur')
 	parser.add_argument('--a',default=0.9)
 	parser.add_argument('--gpu_id', default='6')
 	parser.add_argument('--hparams', default='',

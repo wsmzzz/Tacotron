@@ -18,8 +18,8 @@ if __name__=='__main__':
     argparser.add_argument('--input',default='training_data/test.txt')
     argparser.add_argument('--batch_size',default=2)
     argparser.add_argument('--out_dir', default='Synthesizer')
-    argparser.add_argument('--a',default='1')
-    argparser.add_argument('--checkpoint',default='/data5/wangshiming/my_tacotron2/train_log_dur/logs_a=1-Tacotron/taco_pretrained/tacotron_model.ckpt-32000')
+    argparser.add_argument('--a',default='0.9')
+    argparser.add_argument('--checkpoint',default='/data5/wangshiming/my_tacotron2/train_log_dur/logs_a=0.9-Tacotron/taco_pretrained/tacotron_model.ckpt-71000')
     args=argparser.parse_args()
     out_dir=os.path.join(args.out_dir,args.a)
     if not os.path.exists(out_dir):

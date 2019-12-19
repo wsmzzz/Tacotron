@@ -12,7 +12,7 @@ from tensorflow.python.ops import array_ops, math_ops, nn_ops, variable_scope
 def _compute_attention(attention_mechanism, cell_output, attention_state,
 					   attention_layer, prev_max_attentions, dur=None,is_training=True,a=None):
 	"""Computes the attention and alignments for a given attention_mechanism."""
-	alignments, next_attention_state, max_attentions = attention_mechanism(
+	alignments, next_attention_state = attention_mechanism(
 		cell_output, state=attention_state, prev_max_attentions=prev_max_attentions)
 	a=a
 	# Reshape from [batch_size, memory_time] to [batch_size, 1, memory_time]
@@ -51,6 +51,7 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 
 		print(alignments.shape)
 		alignments = tf.stack([alignments])
+	max_attentions=tf.cast(tf.reshape(tf.argmax(expanded_alignments,axis=-1),(32,)),dtype=tf.int32)
 	return attention, alignments, next_attention_state, max_attentions
 
 
@@ -238,7 +239,7 @@ class LocationSensitiveAttention(BahdanauAttention):
 
 		# alignments shape = energy shape = [batch_size, max_time]
 		alignments = self._probability_fn(energy, previous_alignments)
-		max_attentions = tf.argmax(alignments, -1, output_type=tf.int32)  # (N, Ty/r)
+		# max_attentions = tf.argmax(alignments, -1, output_type=tf.int32)  # (N, Ty/r)
 
 		# Cumulate alignments
 		if self._cumulate:
@@ -246,4 +247,4 @@ class LocationSensitiveAttention(BahdanauAttention):
 		else:
 			next_state = alignments
 
-		return alignments, next_state, max_attentions
+		return alignments, next_state
