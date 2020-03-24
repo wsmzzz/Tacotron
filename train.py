@@ -91,12 +91,12 @@ def train(args, log_dir, hparams):
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--base_dir', default='train_log')
+	parser.add_argument('--base_dir', default='train_log_expand')
 	parser.add_argument('--a',default='0')
-	parser.add_argument('--gpu_id', default='2')
+	parser.add_argument('--gpu_id', default='3')
 	parser.add_argument('--hparams', default='',
 		help='Hyperparameter overrides as a comma-separated list of name=value pairs')
-	parser.add_argument('--tacotron_input', default='Data/training_data/train.txt')
+	parser.add_argument('--tacotron_input', default='Data/training_data/train_short_phone.txt')
 	parser.add_argument('--wavenet_input', default='tacotron_output/gta/map.txt')
 	parser.add_argument('--name', help='Name of logging directory.')
 	parser.add_argument('--model', default='Tacotron')
@@ -104,7 +104,7 @@ def main():
 	parser.add_argument('--output_dir', default='output', help='folder to contain synthesized mel spectrograms')
 	parser.add_argument('--mode', default='synthesis', help='mode for synthesis of tacotron after training')
 	parser.add_argument('--GTA', default='True', help='Ground truth aligned synthesis, defaults to True, only considered in Tacotron synthesis mode')
-	parser.add_argument('--restore', type=bool, default=True, help='Set this to False to do a fresh training')
+	parser.add_argument('--restore', type=bool, default=False, help='Set this to False to do a fresh training')
 	parser.add_argument('--summary_interval', type=int, default=250,
 		help='Steps between running summary ops')
 	parser.add_argument('--embedding_interval', type=int, default=5000,

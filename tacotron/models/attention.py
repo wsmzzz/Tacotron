@@ -230,7 +230,7 @@ class LocationSensitiveAttention(BahdanauAttention):
 			reverse_masks = tf.sequence_mask(Tx - (self.attention_win_size // 2+1) - prev_max_attentions, Tx)[:, ::-1]
 
 			masks = tf.logical_or(key_masks, reverse_masks)
-			paddings = tf.ones_like(energy) * (-float('inf'))  # (N, Ty/r, Tx)
+			paddings = tf.ones_like(energy) * (-1e31)  # (N, Ty/r, Tx)
 			energy = tf.where(tf.equal(masks, False), energy, paddings)
 
 		# alignments shape = energy shape = [batch_size, max_time]

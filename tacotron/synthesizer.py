@@ -473,7 +473,7 @@ class Synthesizer:
 
 def numpy_softmax(input, axis=-1):
     exp = np.exp(input)
-    sum = np.repeat(np.sum(exp, axis=axis, keepdims=True), repeats=60, axis=-1)
+    sum = np.repeat(np.sum(exp, axis=axis, keepdims=True), repeats=48, axis=-1)
     result = np.divide(exp, sum)
     return result
 
