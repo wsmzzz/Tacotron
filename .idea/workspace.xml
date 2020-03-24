@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0ff56f95-1e84-4354-8e94-25a028f70889" name="Default Changelist" comment="">
+    <list default="true" id="0ff56f95-1e84-4354-8e94-25a028f70889" name="Default Changelist" comment="add duration_modules">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/caculate_mse.py" beforeDir="false" afterPath="$PROJECT_DIR$/caculate_mse.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hparams.py" beforeDir="false" afterPath="$PROJECT_DIR$/hparams.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/my_synthesis.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_synthesis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/feeder.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/feeder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/models/Architecture_wrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/Architecture_wrappers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tacotron/models/attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/attention.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/models/tacotron.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/models/tacotron.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/synthesizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/synthesizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tacotron/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tacotron/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.txt" beforeDir="false" afterPath="$PROJECT_DIR$/train.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -73,7 +81,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.train">
+  <component name="RunManager" selected="Python.my_synthesis">
     <configuration name="caculate_mse" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Tacotron-2-master" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -193,9 +201,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.train" />
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.my_synthesis" />
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.train" />
         <item itemvalue="Python.caculate_mse" />
         <item itemvalue="Python.feeder" />
       </list>
@@ -237,7 +245,63 @@
       <workItem from="1576650693529" duration="11466000" />
       <workItem from="1576671353170" duration="16000" />
       <workItem from="1576671396203" duration="1980000" />
-      <workItem from="1576734495251" duration="2071000" />
+      <workItem from="1576734495251" duration="3897000" />
+      <workItem from="1576762937381" duration="694000" />
+      <workItem from="1576771021491" duration="9655000" />
+      <workItem from="1576809697608" duration="2204000" />
+      <workItem from="1577004876620" duration="2710000" />
+      <workItem from="1577090929065" duration="2465000" />
+      <workItem from="1577170605597" duration="1280000" />
+      <workItem from="1577284965015" duration="434000" />
+      <workItem from="1577364571693" duration="2866000" />
+      <workItem from="1577377460798" duration="2791000" />
+      <workItem from="1577715240194" duration="3557000" />
+      <workItem from="1577780935275" duration="3098000" />
+      <workItem from="1577950758414" duration="2468000" />
+      <workItem from="1578753567361" duration="58000" />
+      <workItem from="1578753713081" duration="1622000" />
+      <workItem from="1578759331891" duration="163000" />
+      <workItem from="1578832073268" duration="4666000" />
+      <workItem from="1578907060032" duration="2201000" />
+      <workItem from="1580814657615" duration="3726000" />
+      <workItem from="1581003467787" duration="422000" />
+      <workItem from="1581229811128" duration="869000" />
+      <workItem from="1581235869832" duration="4509000" />
+      <workItem from="1581405257427" duration="1302000" />
+      <workItem from="1581423067120" duration="1017000" />
+      <workItem from="1581439226192" duration="469000" />
+      <workItem from="1581441600119" duration="1966000" />
+      <workItem from="1581490492887" duration="366000" />
+      <workItem from="1581494231410" duration="3135000" />
+      <workItem from="1581862675689" duration="1220000" />
+      <workItem from="1582017583698" duration="3526000" />
+      <workItem from="1582279313261" duration="3202000" />
+      <workItem from="1582287931191" duration="163000" />
+      <workItem from="1582295781259" duration="4989000" />
+      <workItem from="1582357592417" duration="11116000" />
+      <workItem from="1582544176993" duration="4929000" />
+      <workItem from="1582789264373" duration="1168000" />
+      <workItem from="1582792049839" duration="452000" />
+      <workItem from="1583141273482" duration="2650000" />
+      <workItem from="1583238063046" duration="864000" />
+      <workItem from="1583239746454" duration="2870000" />
+      <workItem from="1583336794106" duration="1029000" />
+      <workItem from="1583399545548" duration="2033000" />
+      <workItem from="1583482079855" duration="3468000" />
+      <workItem from="1583507351967" duration="891000" />
+      <workItem from="1583765783174" duration="140000" />
+      <workItem from="1583766035301" duration="2369000" />
+      <workItem from="1583769404290" duration="1817000" />
+      <workItem from="1583811289257" duration="3262000" />
+      <workItem from="1583912976309" duration="18000" />
+      <workItem from="1583914900451" duration="978000" />
+      <workItem from="1583930037285" duration="2697000" />
+      <workItem from="1584021771022" duration="4548000" />
+      <workItem from="1584072129122" duration="21552000" />
+      <workItem from="1584332657830" duration="4555000" />
+      <workItem from="1584353046143" duration="786000" />
+      <workItem from="1584361051427" duration="1277000" />
+      <workItem from="1584367586875" duration="932000" />
     </task>
     <task id="LOCAL-00001" summary="add duration_modules">
       <created>1575649533270</created>
@@ -305,20 +369,30 @@
           <option name="timeStamp" value="59" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/test.py</url>
-          <line>7</line>
-          <option name="timeStamp" value="64" />
+          <url>file://$PROJECT_DIR$/tacotron/models/tacotron.py</url>
+          <line>558</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/train.py</url>
+          <line>25</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tacotron/synthesizer.py</url>
+          <line>357</line>
+          <option name="timeStamp" value="80" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$caculate_mse.coverage" NAME="caculate_mse Coverage Results" MODIFIED="1576666217424" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$caculate_mse.coverage" NAME="caculate_mse Coverage Results" MODIFIED="1577782749092" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$plot.coverage" NAME="plot Coverage Results" MODIFIED="1576062190844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron/utils" />
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$train.coverage" NAME="train Coverage Results" MODIFIED="1576736096951" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$my_synthesis.coverage" NAME="my_synthesis Coverage Results" MODIFIED="1576734959917" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$train.coverage" NAME="train Coverage Results" MODIFIED="1583483774659" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$my_synthesis.coverage" NAME="my_synthesis Coverage Results" MODIFIED="1584361847967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$duration.coverage" NAME="duration Coverage Results" MODIFIED="1575644236597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron/models" />
-    <SUITE FILE_PATH="coverage/Tacotron_2_master$test.coverage" NAME="test Coverage Results" MODIFIED="1576735419615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tacotron_2_master$test.coverage" NAME="test Coverage Results" MODIFIED="1584348858655" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$feeder.coverage" NAME="feeder Coverage Results" MODIFIED="1576420948454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tacotron" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$preprocess.coverage" NAME="preprocess Coverage Results" MODIFIED="1575032050377" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Tacotron_2_master$synthesizer.coverage" NAME="test Coverage Results" MODIFIED="1576052943504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

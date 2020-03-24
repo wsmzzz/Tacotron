@@ -44,7 +44,7 @@ class Tacotron():
 	def initialize(self, inputs, input_lengths, mel_targets=None, stop_token_targets=None, linear_targets=None,
 				   targets_lengths=None, gta=False,
 				   global_step=None, is_training=False, is_evaluating=False, split_infos=None, dur_targets=None,
-				   alignment_targets=None,a=None):
+				   alignment_targets=None,a=None,alignment_inputs=None):
 		"""
 		Initializes the model for inference
 		sets "mel_outputs" and "alignments" fields.
@@ -132,6 +132,7 @@ class Tacotron():
 		self.tower_decoder_output = []
 		self.tower_dur_output = []
 		self.tower_alignments = []
+		self.max_dur=[]
 		self.tower_stop_token_prediction = []
 		self.tower_mel_outputs = []
 		self.tower_linear_outputs = []
@@ -202,13 +203,14 @@ class Tacotron():
 					frame_projection = FrameProjection(hp.num_mels * hp.outputs_per_step,
 													   scope='linear_transform_projection')
 					# <stop_token> projection layer
-					stop_projection = StopProjection(is_training or is_evaluating, shape=hp.outputs_per_step,
-													 scope='stop_token_projection')
+					stop_projection = None
 
 					# Decoder Cell ==> [batch_size, decoder_steps, num_mels * r] (after decoding)
-					if is_training:
-						align_dur=tf.transpose(tower_alignment_targets[i],perm=[1,0,2])
+					if  alignment_targets is not None :
+						align_dur=tower_alignment_targets[i]
+						align_dur=tf.transpose(align_dur,perm=[1,0,2])
 						align_dur = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True).unstack(align_dur)
+
 						decoder_cell = TacotronDecoderCell(
 								prenet,
 								attention_mechanism,
@@ -216,19 +218,21 @@ class Tacotron():
 								frame_projection,
 								stop_projection,
 								dur=align_dur,
-								is_training=is_training,
-								a=a)
+								a=a,
+								T_y=tower_targets_lengths[i])
 					else:
-						dur_int = tf.argmax(dur_out,axis=-1)
+						# dur_int = tf.argmax(dur_out,axis=-1)
+						dur_int=alignment_inputs
+						self.T_y=tf.cast(tf.reduce_sum(dur_int,axis=-1),tf.int32)
 						align_dur = tf.py_func(tf_convert_dur2alignment, [dur_int], Tout=tf.int32)
 						align_dur=tf.one_hot(indices=align_dur,
 											 depth=max_out_length,
 											 on_value=1.0, off_value=0.0, axis=-1
 											 ,dtype=tf.float32)
-						pad = align_dur[:, -1, :]
-						pad = tf.expand_dims(pad, axis=1)
-						pad = tf.tile(pad, [1, 700, 1])
-						align_dur = tf.concat([align_dur, pad], axis=1)
+						# pad = align_dur[:, -1, :]
+						# pad = tf.expand_dims(pad, axis=1)
+						# pad = tf.tile(pad, [1, 1000, 1])
+						# align_dur = tf.concat([align_dur, pad], axis=1)
 
 						# convert tensor To TensorArray
 						align_dur=tf.transpose(align_dur,perm=[1,0,2])
@@ -241,8 +245,8 @@ class Tacotron():
 							frame_projection,
 							stop_projection,
 							dur=align_dur,
-							is_training=is_training,
-							a=a)
+							a=a,
+						T_y=self.T_y)
 
 
 					# Define the helper for our decoder
@@ -269,6 +273,7 @@ class Tacotron():
 					# ==> [batch_size, non_reduced_decoder_steps (decoder_steps * r), num_mels]
 					decoder_output = tf.reshape(frames_prediction, [batch_size, -1, hp.num_mels])
 					stop_token_prediction = tf.reshape(stop_token_prediction, [batch_size, -1])
+
 
 					if hp.clip_outputs:
 						decoder_output = tf.minimum(
@@ -316,9 +321,11 @@ class Tacotron():
 
 					# Grab alignments from the final decoder state
 					alignments = tf.transpose(final_decoder_state.alignment_history.stack(), [2, 1 , 3, 0])
+
 					self.tower_dur_output.append(dur_out)
 					self.tower_decoder_output.append(decoder_output)
 					self.tower_alignments.append(alignments)
+
 					self.tower_stop_token_prediction.append(stop_token_prediction)
 					self.tower_mel_outputs.append(mel_outputs)
 					tower_embedded_inputs.append(embedded_inputs)
@@ -461,7 +468,7 @@ class Tacotron():
 					self.tower_regularization_loss.append(regularization)
 					self.tower_linear_loss.append(linear_loss)
 
-					tower_loss = before + after + stop_token_loss + regularization + linear_loss + dur
+					tower_loss = before + after  + regularization + linear_loss + dur
 					self.tower_loss.append(tower_loss)
 
 			total_before_loss += before

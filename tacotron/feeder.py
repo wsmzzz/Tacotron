@@ -24,7 +24,7 @@ class Feeder:
 		self._cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]
 		self._train_offset = 0
 		self._test_offset = 0
-		self.duration_dir = '/data5/wangshiming/biaobei/biaobei/label'
+		self.duration_dir = '/data5/wangshiming/my_tacotron2/dur_npy'
 
 		# Load metadata
 		self._mel_dir = os.path.join(os.path.dirname(metadata_filename), 'mels')
@@ -134,9 +134,9 @@ class Feeder:
 	def _get_test_groups(self):
 		meta = self._test_meta[self._test_offset]
 		self._test_offset += 1
-		dur_file = meta[1].lstrip('mel-').rstrip('.npy')
-		dur_file = os.path.join(self.duration_dir, '%s.label' % dur_file)
-		dur = get_dur(dur_file)
+		dur_file = meta[1].lstrip('mel-')
+		dur_file = os.path.join(self.duration_dir, dur_file)
+		dur = np.squeeze(np.load(dur_file))
 		alignment = convert_dur2alignment(dur)
 		text = meta[5]
 
@@ -202,9 +202,9 @@ class Feeder:
 
 		meta = self._train_meta[self._train_offset]
 		self._train_offset += 1
-		dur_file = meta[1].lstrip('mel-').rstrip('.npy')
-		dur_file = os.path.join(self.duration_dir, '%s.label' % dur_file)
-		dur = get_dur(dur_file)
+		dur_file = meta[1].lstrip('mel-')
+		dur_file = os.path.join(self.duration_dir, dur_file)
+		dur = np.squeeze(np.load(dur_file))
 		alignment = convert_dur2alignment(dur)
 		text = meta[5]
 

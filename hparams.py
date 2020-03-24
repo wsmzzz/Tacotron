@@ -67,7 +67,7 @@ hparams = tf.contrib.training.HParams(
 
 	#train samples of lengths between 3sec and 14sec are more than enough to make a model capable of generating consistent speech.
 	clip_mels_length = True, #For cases of OOM (Not really recommended, only use if facing unsolvable OOM errors, also consider clipping your samples to smaller chunks)
-	max_mel_frames = 1000,  #Only relevant when clip_mels_length = True, please only use after trying output_per_steps=3 and still getting OOM errors.
+	max_mel_frames = 5000,  #Only relevant when clip_mels_length = True, please only use after trying output_per_steps=3 and still getting OOM errors.
 
 	# Use LWS (https://github.com/Jonathan-LeRoux/lws) for STFT and phase reconstruction
 	# It's preferred to set True to use with https://github.com/r9y9/wavenet_vocoder
@@ -155,7 +155,7 @@ hparams = tf.contrib.training.HParams(
 	#Attention synthesis constraints
 	#"Monotonic" constraint forces the model to only look at the forwards attention_win_size steps.
 	#"Window" allows the model to look at attention_win_size neighbors, both forward and backward steps.
-	synthesis_constraint = False,  #Whether to use attention windows constraints in synthesis only (Useful for long utterances synthesis)
+	synthesis_constraint = True,  #Whether to use attention windows constraints in synthesis only (Useful for long utterances synthesis)
 	synthesis_constraint_type = 'window', #can be in ('window', 'monotonic').
 	attention_win_size = 7, #Side of the window. Current step does not count. If mode is window and attention_win_size is not pair, the 1 extra is provided to backward part of the window.
 
@@ -163,7 +163,7 @@ hparams = tf.contrib.training.HParams(
 	prenet_layers = [256, 256], #number of layers and number of units of prenet
 	decoder_layers = 2, #number of decoder lstm layers
 	decoder_lstm_units = 1024, #number of decoder lstm units on each layer
-	max_iters = 700, #Max decoder steps during inference (Just for safety from infinite loop cases)
+	max_iters = 3000, #Max decoder steps during inference (Just for safety from infinite loop cases)
 
 	#Residual postnet
 	postnet_num_layers = 5, #number of postnet convolutional layers
@@ -249,7 +249,7 @@ hparams = tf.contrib.training.HParams(
 
     #######################################################
 	dur_conv_layer_num=3,
-	dur_project_dim=48,
+	dur_project_dim=60,
 	dur_conv_kernel_size=5,
 	dur_conv_channel=512,
 	#Tacotron Training
@@ -347,7 +347,7 @@ hparams = tf.contrib.training.HParams(
 
 	#training samples length
 	max_time_sec = None, #Max time of audio for training. If None, we use max_time_steps.
-	max_time_steps = 11000, #Max time steps in audio used to train wavenet (decrease to save memory) (Recommend: 8000 on modest GPUs, 13000 on stronger ones)
+	max_time_steps = 1500, #Max time steps in audio used to train wavenet (decrease to save memory) (Recommend: 8000 on modest GPUs, 13000 on stronger ones)
 
 	#Evaluation parameters
 	wavenet_natural_eval = False, #Whether to use 100% natural eval (to evaluate autoregressivity performance) or with teacher forcing to evaluate overfit and model consistency.

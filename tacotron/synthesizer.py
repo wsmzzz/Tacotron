@@ -21,14 +21,15 @@ class Synthesizer:
         # Force the batch size to be known in order to use attention masking in batch synthesis
         inputs = tf.placeholder(tf.int32, (None, None, 2), name='inputs')
         input_lengths = tf.placeholder(tf.int32, (None), name='input_lengths')
+        alignment_inputs=tf.placeholder(tf.int32,(None,None),name='alignment_inputs')
         targets = tf.placeholder(tf.float32, (None, None, hparams.num_mels), name='mel_targets')
         split_infos = tf.placeholder(tf.int32, shape=(hparams.tacotron_num_gpus, None), name='split_infos')
         with tf.variable_scope('Tacotron_model', reuse=tf.AUTO_REUSE) as scope:
             self.model = create_model(model_name, hparams)
             if gta:
-                self.model.initialize(inputs, input_lengths, targets, gta=gta, split_infos=split_infosa,a=a)
+                self.model.initialize(inputs, input_lengths, targets, gta=gta, split_infos=split_infos,a=a)
             else:
-                self.model.initialize(inputs, input_lengths, split_infos=split_infos,a=a)
+                self.model.initialize(inputs, input_lengths ,split_infos=split_infos,a=a,alignment_inputs=alignment_inputs)
 
             self.mel_outputs = self.model.tower_mel_outputs
             self.linear_outputs = self.model.tower_linear_outputs if (hparams.predict_linear and not gta) else None
@@ -57,6 +58,7 @@ class Synthesizer:
             self._target_pad = 0.
 
         self.inputs = inputs
+        self.alignment_inputs=alignment_inputs
         self.input_lengths = input_lengths
         self.targets = targets
         self.split_infos = split_infos
@@ -244,6 +246,76 @@ class Synthesizer:
 
         return saved_mels_paths, speaker_ids
 
+    def my_sythsize_with_dur(self, texts, basenames, out_dir, alignment_inputs):
+        hparams = self._hparams
+        # [-max, max] or [0,max]
+        T2_output_range = (-hparams.max_abs_value, hparams.max_abs_value) if hparams.symmetric_mels else (
+            0, hparams.max_abs_value)
+
+        # Repeat last sample until number of samples is dividable by the number of GPUs (last run scenario)
+        while len(texts) % hparams.tacotron_synthesis_batch_size != 0:
+            texts.append(texts[-1])
+            basenames.append(basenames[-1])
+        assert 0 == len(texts) % self._hparams.tacotron_num_gpus
+        seqs = [np.asarray(text_to_sequence(text)) for text in texts]
+        input_lengths = [len(seq) for seq in seqs]
+
+        size_per_device = len(seqs) // self._hparams.tacotron_num_gpus
+
+        # Pad inputs according to each GPU max length
+        input_seqs = None
+        split_infos = []
+        for i in range(self._hparams.tacotron_num_gpus):
+            device_input = seqs[size_per_device * i: size_per_device * (i + 1)]
+            device_input, max_seq_len = self._prepare_inputs(device_input)
+            max_align = alignment_inputs.shape[1]
+            input_seqs = np.concatenate((input_seqs, device_input), axis=1) if input_seqs is not None else device_input
+            split_infos.append([max_seq_len, 0, 0, 0, 0, max_align])
+
+        feed_dict = {
+            self.inputs: input_seqs,
+            self.input_lengths: np.asarray(input_lengths, dtype=np.int32),
+            self.alignment_inputs: alignment_inputs
+        }
+
+        feed_dict[self.split_infos] = np.asarray(split_infos, dtype=np.int32)
+
+        linears, mels, alignments, stop_tokens = self.session.run(
+            [self.linear_outputs, self.mel_outputs, self.alignments, self.stop_token_prediction],
+            feed_dict=feed_dict)
+
+        # Linearize outputs (1D arrays)
+        linears = [linear for gpu_linear in linears for linear in gpu_linear]
+        mels = [mel for gpu_mels in mels for mel in gpu_mels]
+        alignments = [align for gpu_aligns in alignments for align in gpu_aligns]
+        stop_tokens = [token for gpu_token in stop_tokens for token in gpu_token]
+
+        # Natural batch synthesis
+        # Get Mel/Linear lengths for the entire batch from stop_tokens predictions
+        target_lengths = self._get_output_lengths(stop_tokens)
+
+        # Take off the batch wise padding
+        alignments = [alignment[:, :target_length] for alignment, target_length in zip(alignments, target_lengths)]
+        mels = [mel[:target_length, :] for mel, target_length in zip(mels, target_lengths)]
+        linears = [linear[:target_length, :] for linear, target_length in zip(linears, target_lengths)]
+
+        # linears = np.clip(linears, T2_output_range[0], T2_output_range[1])
+        assert len(mels) == len(linears) == len(texts)
+
+        # mels = np.clip(mels, T2_output_range[0], T2_output_range[1])
+
+        out_wav_dir = os.path.join(out_dir, 'wav')
+        out_align_dir = os.path.join(out_dir, 'align')
+        os.makedirs(out_wav_dir, exist_ok=True)
+        os.makedirs(out_align_dir, exist_ok=True)
+        for i, mel in enumerate(mels):
+            wav_dir = os.path.join(out_wav_dir, basenames[i] + '.wav')
+            align_dir = os.path.join(out_align_dir, basenames[i] + '.npy')
+            wav = self.session.run(self.GLGPU_lin_outputs, feed_dict={self.GLGPU_lin_inputs: linears[i]})
+            wav = audio.inv_preemphasis(wav, hparams.preemphasis, hparams.preemphasize)
+            audio.save_wav(wav, wav_dir, sr=hparams.sample_rate)
+            np.save(align_dir, alignments[i])
+
     def my_synthesize(self, texts, basenames, out_dir):
 
         hparams = self._hparams
@@ -276,6 +348,8 @@ class Synthesizer:
         }
         feed_dict[self.split_infos] = np.asarray(split_infos, dtype=np.int32)
 
+
+
         linears, mels, alignments, stop_tokens, dur_predicts = self.session.run(
             [self.linear_outputs, self.mel_outputs, self.alignments, self.stop_token_prediction, self.dur_predict],
             feed_dict=feed_dict)
@@ -302,12 +376,12 @@ class Synthesizer:
         # mels = np.clip(mels, T2_output_range[0], T2_output_range[1])
 
         out_wav_dir = os.path.join(out_dir, 'wav')
-        out_dur_dir = os.path.join(out_dir, 'dur_predict')
+        out_align_dir = os.path.join(out_dir, 'align')
         os.makedirs(out_wav_dir, exist_ok=True)
-        os.makedirs(out_dur_dir, exist_ok=True)
+        os.makedirs(out_align_dir, exist_ok=True)
         for i, mel in enumerate(mels):
             wav_dir = os.path.join(out_wav_dir, basenames[i] + '.wav')
-            align_dir = os.path.join(out_dur_dir, basenames[i] + '.npy')
+            align_dir = os.path.join(out_align_dir, basenames[i] + '.npy')
             wav = self.session.run(self.GLGPU_lin_outputs, feed_dict={self.GLGPU_lin_inputs: linears[i]})
             wav = audio.inv_preemphasis(wav, hparams.preemphasis, hparams.preemphasize)
             audio.save_wav(wav, wav_dir, sr=hparams.sample_rate)
@@ -352,7 +426,9 @@ class Synthesizer:
         # Linearize outputs (1D arrays)
         dur_predicts = [dur for gpu_dur in dur_predicts for dur in gpu_dur]
         dur_predicts = dur_predicts[0]
+
         dur_predicts = numpy_softmax(dur_predicts)
+        probility = dur_predicts
         dur_predicts = np.argmax(dur_predicts, axis=-1)
         align = batch_convert_dur2alignment(dur_predicts)
         batch = dur_predicts.shape[0]
@@ -368,7 +444,7 @@ class Synthesizer:
         #     np.repeat(np.expand_dims(input_lengths,1),repeats=output_lengths,axis=1))
         # dur_predicts=np.where(length_mask,dur_predicts,np.)
 
-        a = 0
+        return probility
 
     def _round_up(self, x, multiple):
         remainder = x % multiple
@@ -397,7 +473,7 @@ class Synthesizer:
 
 def numpy_softmax(input, axis=-1):
     exp = np.exp(input)
-    sum = np.repeat(np.sum(exp, axis=axis, keepdims=True), repeats=48, axis=-1)
+    sum = np.repeat(np.sum(exp, axis=axis, keepdims=True), repeats=60, axis=-1)
     result = np.divide(exp, sum)
     return result
 

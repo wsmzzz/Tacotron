@@ -4,21 +4,23 @@ import tensorflow as tf
 from tensorflow.contrib.seq2seq.python.ops.attention_wrapper import BahdanauAttention
 from tensorflow.python.layers import core as layers_core
 from tensorflow.python.ops import array_ops, math_ops, nn_ops, variable_scope
+import  numpy as np
 
 
 
 
 # From https://github.com/tensorflow/tensorflow/blob/r1.7/tensorflow/contrib/seq2seq/python/ops/attention_wrapper.py
 def _compute_attention(attention_mechanism, cell_output, attention_state,
-					   attention_layer, prev_max_attentions, dur=None,is_training=True,a=None):
+					   attention_layer, prev_max_attentions, dur=None,a=None):
 	"""Computes the attention and alignments for a given attention_mechanism."""
 	alignments, next_attention_state = attention_mechanism(
 		cell_output, state=attention_state, prev_max_attentions=prev_max_attentions)
-	a=a
-	# Reshape from [batch_size, memory_time] to [batch_size, 1, memory_time]
-	expanded_alignments = array_ops.expand_dims(alignments, 1)
-	dur=array_ops.expand_dims(dur, 1)
 
+	# Reshape from [batch_size, memory_time] to [batch_size, 1, memory_time]
+
+	amend_attention= alignments*a+(1-a)*dur
+	max_attentions = tf.argmax(dur, -1, output_type=tf.int32)
+	amend_attention=array_ops.expand_dims(amend_attention, 1)
 
 
 
@@ -32,26 +34,23 @@ def _compute_attention(attention_mechanism, cell_output, attention_state,
 	# the batched matmul is over memory_time, so the output shape is
 	#   [batch_size, 1, memory_size].
 	# we then squeeze out the singleton dim.
-	if dur != None:
-		expanded_alignments = a * expanded_alignments + (1 - a) * dur
-	context = math_ops.matmul(expanded_alignments, attention_mechanism.values)
 
-	context = array_ops.squeeze(context, [1])
+
+	context = math_ops.matmul(amend_attention, attention_mechanism.values)
+	context = array_ops.squeeze(context,[1])
 
 	if attention_layer is not None:
 		attention = attention_layer(array_ops.concat([cell_output, context], 1))
 	else:
 		attention = context
 
-	if dur is not None:
-		amend_alignment = tf.squeeze(expanded_alignments)
-		dur_alignment = tf.squeeze(dur)
-		alignments=tf.stack([alignments,dur_alignment,amend_alignment])
-	else:
+	amend_alignment = tf.squeeze(amend_attention)
+	# max_attentions = tf.cast(tf.reshape(tf.argmax(amend_alignment, axis=-1), (32,)), dtype=tf.int32)
 
-		print(alignments.shape)
-		alignments = tf.stack([alignments])
-	max_attentions=tf.cast(tf.reshape(tf.argmax(expanded_alignments,axis=-1),(32,)),dtype=tf.int32)
+	dur_alignment = dur
+	alignments=tf.stack([alignments,dur_alignment,amend_alignment])
+
+
 	return attention, alignments, next_attention_state, max_attentions
 
 
@@ -221,20 +220,17 @@ class LocationSensitiveAttention(BahdanauAttention):
 			# energy shape [batch_size, max_time]
 			energy = _location_sensitive_score(processed_query, processed_location_features, self.keys)
 
-		if self.synthesis_constraint:
+
 			Tx = tf.shape(energy)[-1]
 			# prev_max_attentions = tf.squeeze(prev_max_attentions, [-1])
-			if self.constraint_type == 'monotonic':
-				key_masks = tf.sequence_mask(prev_max_attentions, Tx)
-				reverse_masks = tf.sequence_mask(Tx - self.attention_win_size - prev_max_attentions, Tx)[:, ::-1]
-			else:
-				assert self.constraint_type == 'window'
-				key_masks = tf.sequence_mask(
-					prev_max_attentions - (self.attention_win_size // 2 + (self.attention_win_size % 2 != 0)), Tx)
-				reverse_masks = tf.sequence_mask(Tx - (self.attention_win_size // 2) - prev_max_attentions, Tx)[:, ::-1]
+
+
+			key_masks = tf.sequence_mask(
+				prev_max_attentions - (self.attention_win_size // 2 ), Tx)
+			reverse_masks = tf.sequence_mask(Tx - (self.attention_win_size // 2+1) - prev_max_attentions, Tx)[:, ::-1]
 
 			masks = tf.logical_or(key_masks, reverse_masks)
-			paddings = tf.ones_like(energy) * (-2 ** 32 + 1)  # (N, Ty/r, Tx)
+			paddings = tf.ones_like(energy) * (-float('inf'))  # (N, Ty/r, Tx)
 			energy = tf.where(tf.equal(masks, False), energy, paddings)
 
 		# alignments shape = energy shape = [batch_size, max_time]

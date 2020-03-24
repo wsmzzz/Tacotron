@@ -1,6 +1,6 @@
 import os
 import numpy as np
-dur_dir='/data5/wangshiming/my_tacotron2/Synthesizer/1/dur_predict'
+dur_dir='//data5/wangshiming/my_tacotron2/mask_Synthesizer/0/dur_predict'
 dur_predict=list(filter(lambda x:x.endswith('dur'),os.listdir(dur_dir)))
 label_dir='/data5/wangshiming/biaobei/biaobei/label'
 x=[]
@@ -19,7 +19,7 @@ for file in dur_predict:
         for line in lines:
             start, end, _ = line.strip().split(' ')
             y.append((int(end) - int(start)) / 10e3)
-    a=0
+
     
 x=np.asarray(x)
 y=np.asarray(y)
